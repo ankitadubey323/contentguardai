@@ -1,44 +1,18 @@
-/**
- * ============================================
- * API SERVICE - All Backend Communication
- * ============================================
- * 
- * WHY WE NEED THIS:
- * Centralizes all API calls in one place. Instead of writing
- * axios.post() in every component, we write it once here.
- * Makes code cleaner and easier to maintain.
- * 
- * WHAT IT DOES:
- * - Creates axios instance with default config
- * - Provides functions for each API endpoint
- * - Handles errors consistently
- * - Adds idempotency keys automatically
- * 
- * REACT CONCEPTS LEARNED:
- * - Separation of concerns: API logic separate from UI
- * - Async/await: Handling asynchronous operations
- * - Error handling: Try/catch blocks
- */
+
 
 import axios from 'axios'
 import { v4 as uuidv4 } from 'uuid'
 
-// Create axios instance with default configuration
-// Base URL is /api which gets proxied to localhost:3000 by Vite
+
 const api = axios.create({
-  baseURL: '/api',
+  baseURL: 'http://localhost:3000/api',
   headers: {
     'Content-Type': 'application/json',
   },
-  timeout: 30000, // 30 second timeout
+  timeout: 30000,
 })
 
-/**
- * Submit content for analysis
- * 
- * @param {string} text - The text content to analyze
- * @returns {Promise} - Response with contentId
- */
+
 export const submitContent = async (text) => {
   try {
     // Generate unique idempotency key to prevent duplicate submissions
@@ -56,16 +30,11 @@ export const submitContent = async (text) => {
     return response.data
   } catch (error) {
     console.error('Error submitting content:', error)
-    throw error // Re-throw to handle in component
+    throw error 
   }
 }
 
-/**
- * Get content by ID (for polling after submission)
- * 
- * @param {string} contentId - The ID of the content to fetch
- * @returns {Promise} - Response with full content data
- */
+
 export const getContentById = async (contentId) => {
   try {
     const response = await api.get(`/content/${contentId}`)
@@ -76,17 +45,7 @@ export const getContentById = async (contentId) => {
   }
 }
 
-/**
- * Get paginated list of all content
- * 
- * @param {Object} params - Query parameters
- * @param {number} params.page - Page number (default: 1)
- * @param {number} params.limit - Items per page (default: 20)
- * @param {string} params.status - Filter by status
- * @param {boolean} params.isFlagged - Filter by flagged status
- * @param {string} params.moderationAction - Filter by moderation action
- * @returns {Promise} - Response with content array and pagination info
- */
+
 export const getContentList = async (params = {}) => {
   try {
     // Build query string from params
@@ -179,10 +138,3 @@ export const pollForResult = async (contentId, maxAttempts = 10) => {
   throw new Error('Polling timeout: Maximum attempts reached')
 }
 
-/**
- * TRY THIS TO LEARN:
- * 1. Add console.log in each function to see when they're called
- * 2. Change timeout to 5000 and submit long text to see timeout error
- * 3. Add a new function: export const searchContent = async (query) => {...}
- * 4. Test error handling by changing baseURL to '/wrong-api'
- */
