@@ -1,96 +1,55 @@
 
-// import dotenv from 'dotenv'
-// dotenv.config({path: './.env'})
-// console.log("ENV CHECK 👉", process.env.GROQ_API_KEY);
-// import express from 'express'
-// import contentrouter from './src/routes/contentRoutes.js'
-
-// import connectdb from './src/config/database.js'
-// import errorHandler from './src/middleware/errorHandler.js'
-// import logger from './src/utils/logger.js'
-// // dotenv.config()
-
-// const app = express()
-
-// connectdb()
-// const PORT = process.env.PORT || 3000   
-// app.use(express.json())
-// app.use(express.urlencoded({ extended: true }))
-
-// if (process.env.NODE_ENV !== 'production') {
-//     app.use((req, res, next) => {
-//         logger.info(`${req.method} ${req.path}`)
-//         next()
-//     })
-// }
-// app.use(express.json())
-// app.get('/', (req, res) => {
-//     res.send('Hello World!')
-// })
-
-// pp.get('/health', (req, res) => {
-//     res.json({
-//         success: true,
-//         message: 'ContentGuard AI is running',
-//         timestamp: new Date().toISOString()
-//     })
-// })
-
-// app.use('/api', contentrouter)
-
-// // 404 handler - when route not found
-// // WHY: Give proper error message instead of default Express error
-// app.use('*', (req, res) => {
-//     res.status(404).json({
-//         success: false,
-//         error: 'Route not found',
-//         path: req.originalUrl
-//     })
-// })
-
-// // ============================================
-// // 🆕 IMPORTANT: Error Handler (MUST BE LAST!)
-// // WHY: Catch all errors and send proper JSON responses
-// // Without this, your app crashes on errors!
-// // ============================================
-// app.use(errorHandler)
-// app.use('/api', contentrouter)
-
-// app.listen(PORT, () => {
-//     console.log(`Server is running on port http://localhost:${PORT}`)
-// })
-
-
-// process.on('unhandledRejection', (err) => {
-//     logger.error('Unhandled Rejection:', err)
-//     console.error('❌ Unhandled Rejection:', err)
-// })
-
-// process.on('uncaughtException', (err) => {
-//     logger.error('Uncaught Exception:', err)
-//     console.error('❌ Uncaught Exception:', err)
-//     process.exit(1)
-// })
 import dotenv from 'dotenv'
 dotenv.config({ path: './.env' })
 
 import express from 'express'
+import mongoose from 'mongoose'
+import cors from 'cors'
 import contentrouter from './src/routes/contentRoutes.js'
 import connectdb from './src/config/database.js'
 import errorHandler from './src/middlewear/errorHandler.js'
 import logger from './src/utils/logger.js'
 
+// Import Redis (but don't crash if it fails)
+import './src/config/redis.js'
+
 const app = express()
 const PORT = process.env.PORT || 3000
 
-// 1️⃣ Connect DB
+// ─────────────────────────────────────────────────────────────────
+// 1️⃣ CORS Configuration
+// ─────────────────────────────────────────────────────────────────
+const allowedOrigins = [
+  'http://localhost:5173',
+  'http://localhost:5174',
+  'http://127.0.0.1:5173',
+]
+
+app.use(cors({
+  origin: function (origin, callback) {
+    if (!origin) return callback(null, true)
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true)
+    } else {
+      callback(new Error('Not allowed by CORS'))
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Idempotency-Key']
+}))
+
+// ─────────────────────────────────────────────────────────────────
+// 2️⃣ Connect Database
+// ─────────────────────────────────────────────────────────────────
 connectdb()
 
-// 2️⃣ Core middlewares
+
+
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 
-// 3️⃣ Logger middleware (dev only)
+
 if (process.env.NODE_ENV !== 'production') {
     app.use((req, res, next) => {
         logger.info(`${req.method} ${req.path}`)
@@ -98,23 +57,41 @@ if (process.env.NODE_ENV !== 'production') {
     })
 }
 
-// 4️⃣ Health & base routes
-app.get('/', (req, res) => {
-    res.send('Hello World!')
-})
 
-app.get('/health', (req, res) => {
+app.get('/', (req, res) => {
     res.json({
         success: true,
-        message: 'ContentGuard AI is running',
-        timestamp: new Date().toISOString()
+        message: 'ContentGuard AI Backend is running!',
+        version: '1.0.0'
     })
 })
 
-// 5️⃣ API routes
+app.get('/health', async (req, res) => {
+    try {
+        const dbStatus = mongoose.connection.readyState === 1 ? 'connected' : 'disconnected'
+
+        res.json({
+            success: true,
+            message: 'ContentGuard AI is running',
+            timestamp: new Date().toISOString(),
+            services: {
+                database: dbStatus,
+            },
+            version: '1.0.0',
+        })
+    } catch (error) {
+        res.status(503).json({
+            success: false,
+            message: 'Service unhealthy',
+            error: error.message,
+        })
+    }
+})
+
+
 app.use('/api', contentrouter)
 
-// 6️⃣ 404 handler (no route matched)
+
 app.use((req, res) => {
     res.status(404).json({
         success: false,
@@ -123,20 +100,37 @@ app.use((req, res) => {
     })
 })
 
-// 7️⃣ Global error handler (ABSOLUTELY LAST)
+
 app.use(errorHandler)
 
-// 8️⃣ Start server
+
 app.listen(PORT, () => {
-    logger.success(`Server running at http://localhost:${PORT}`)
+    logger.success(` Server running at http://localhost:${PORT}`)
+    logger.info(` Health check: http://localhost:${PORT}/health`)
+    logger.info(` API endpoint: http://localhost:${PORT}/api/content`)
+    logger.info(` CORS enabled for: ${allowedOrigins.join(', ')}`)
 })
 
-// 9️⃣ Node-level crash handling
+
+process.on('SIGTERM', async () => {
+    logger.warn('SIGTERM received, shutting down gracefully...')
+    await mongoose.connection.close()
+    logger.info(' MongoDB connection closed')
+    process.exit(0)
+})
+
+process.on('SIGINT', async () => {
+    logger.warn('SIGINT received, shutting down gracefully...')
+    await mongoose.connection.close()
+    logger.info(' MongoDB connection closed')
+    process.exit(0)
+})
+
 process.on('unhandledRejection', (err) => {
-    logger.error('Unhandled Rejection:', err)
+    logger.error(' Unhandled Rejection:', err)
 })
 
 process.on('uncaughtException', (err) => {
-    logger.error('Uncaught Exception:', err)
+    logger.error(' Uncaught Exception:', err)
     process.exit(1)
 })

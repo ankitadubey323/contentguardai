@@ -1,0 +1,45 @@
+contentguard-frontend/
+├── public/
+│   └── vite.svg
+├── src/
+│   ├── components/
+│   │   ├── Header.jsx
+│   │   ├── TextInput.jsx
+│   │   ├── LoadingSpinner.jsx
+│   │   ├── ResultCard.jsx
+│   │   ├── ToxicityMeter.jsx
+│   │   ├── SentimentBadge.jsx
+│   │   ├── KeywordList.jsx
+│   │   ├── HistoryList.jsx
+│   │   ├── HistoryItem.jsx
+│   │   ├── PaginationControls.jsx
+│   │   ├── StatsCard.jsx
+│   │   └── FilterBar.jsx
+│   ├── pages/
+│   │   ├── Home.jsx
+│   │   ├── History.jsx
+│   │   └── Stats.jsx
+│   ├── services/
+│   │   └── api.js
+│   ├── hooks/
+│   │   ├── useAnalysis.js
+│   │   └── usePagination.js
+│   ├── utils/
+│   │   └── helpers.js
+│   ├── styles/
+│   │   ├── App.css
+│   │   ├── Header.css
+│   │   ├── Home.css
+│   │   ├── History.css
+│   │   ├── Stats.css
+│   │   └── components.css
+│   ├── App.jsx
+│   ├── main.jsx
+│   └── index.css
+├── .env.example
+├── .gitignore
+├── index.html
+├── package.json
+├── vite.config.js
+├── LEARNING_GUIDE.md
+└── README.md

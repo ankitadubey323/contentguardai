@@ -1,0 +1,103 @@
+/**
+ * ============================================
+ * GLOBAL STYLES
+ * ============================================
+ * 
+ * These styles apply to the entire application.
+ * We use CSS custom properties (variables) for
+ * consistent colors throughout the app.
+ */
+
+/* Reset default browser styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* CSS Variables - Easy to change theme colors */
+:root {
+  /* Primary gradient colors */
+  --gradient-start: #667eea;
+  --gradient-end: #764ba2;
+  
+  /* Status colors */
+  --success: #10b981;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+  --info: #3b82f6;
+  
+  /* Neutral colors */
+  --white: #ffffff;
+  --gray-50: #f9fafb;
+  --gray-100: #f3f4f6;
+  --gray-200: #e5e7eb;
+  --gray-300: #d1d5db;
+  --gray-600: #4b5563;
+  --gray-700: #374151;
+  --gray-900: #111827;
+  
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+  
+  /* Border radius */
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+}
+
+/* Body styling */
+body {
+  font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
+  min-height: 100vh;
+  color: var(--gray-900);
+  line-height: 1.6;
+}
+
+/* Main app container */
+#root {
+  min-height: 100vh;
+}
+
+/* Utility classes */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+/* Smooth animations for all transitions */
+* {
+  transition: all 0.3s ease;
+}
+
+/* Focus styles for accessibility */
+*:focus {
+  outline: 2px solid var(--info);
+  outline-offset: 2px;
+}
+
+/* Scrollbar styling (Webkit browsers) */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--gray-100);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--gradient-start);
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--gradient-end);
+}

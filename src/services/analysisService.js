@@ -89,13 +89,13 @@ function shouldFlagContent(analysis) {
 
   // Criterion 1: High toxicity score
   if (toxicity.toxicity_score > 60) {
-    console.log(`   ⚠️ Flag reason: High toxicity score (${toxicity.toxicity_score})`);
+    console.log(`    Flag reason: High toxicity score (${toxicity.toxicity_score})`);
     return true;
   }
 
   // Criterion 2: High or critical severity
   if (toxicity.severity === "high" || toxicity.severity === "critical") {
-    console.log(`   ⚠️ Flag reason: Severity is ${toxicity.severity}`);
+    console.log(`    Flag reason: Severity is ${toxicity.severity}`);
     return true;
   }
 
@@ -113,31 +113,16 @@ function shouldFlagContent(analysis) {
   );
 
   if (hasHarmfulCategory) {
-    console.log(`   ⚠️ Flag reason: Contains harmful category`);
+    console.log(`    Flag reason: Contains harmful category`);
     return true;
   }
 
   // No flagging criteria met
-  console.log(`   ✅ No flagging needed`);
+  console.log(`    No flagging needed`);
   return false;
 }
 
-// ============================================
-// BUSINESS LOGIC: MODERATION ACTION
-// ============================================
 
-/**
- * Determine what moderation action to take
- * 
- * Action Levels:
- * - "removed" (80+):  Delete immediately, very toxic
- * - "hidden" (60-79): Hide from public, moderately toxic
- * - "warned" (40-59): Show warning, slightly toxic
- * - "none" (0-39):    Allow, safe content
- * 
- * @param {Object} analysis - AI analysis results
- * @returns {String} Moderation action
- */
 function determineModerationAction(analysis) {
   const score = analysis.toxicity.toxicity_score || 0;
 
@@ -152,22 +137,8 @@ function determineModerationAction(analysis) {
   }
 }
 
-// ============================================
-// BUSINESS LOGIC: RISK LEVEL
-// ============================================
 
-/**
- * Calculate overall risk level
- * 
- * Considers:
- * - Toxicity score
- * - Severity
- * - Number of harmful categories
- * - Negative sentiment
- * 
- * @param {Object} analysis - AI analysis results
- * @returns {String} Risk level
- */
+ 
 function calculateRiskLevel(analysis) {
   const score = analysis.toxicity.toxicity_score || 0;
   const severity = analysis.toxicity.severity;
@@ -193,22 +164,11 @@ function calculateRiskLevel(analysis) {
   return "low";
 }
 
-// ============================================
-// ADDITIONAL FUNCTION: QUICK TOXICITY CHECK
-// ============================================
-
-/**
- * Quick toxicity check without saving to database
- * Useful for real-time validation (e.g., before posting)
- * 
- * @param {String} text - Text to check
- * @returns {Object} Quick check results
- */
 export async function quickToxicityCheck(text) {
-  console.log("\n⚡ Quick toxicity check...");
+  console.log("\n Quick toxicity check...");
 
   try {
-    // Only run toxicity analysis (faster)
+    
     const toxicity = await groqService.analyzeToxicity(text);
 
     const result = {
@@ -217,32 +177,22 @@ export async function quickToxicityCheck(text) {
       severity: toxicity.severity,
       categories: toxicity.categories,
       recommendation: toxicity.is_toxic
-        ? "⚠️ This content may violate community guidelines"
-        : "✅ Content looks safe to post",
+        ? " This content may violate community guidelines"
+        : " Content looks safe to post",
     };
 
-    console.log(`✅ Quick check: ${result.isToxic ? "TOXIC" : "SAFE"} (${result.score}/100)`);
+    console.log(`Quick check: ${result.isToxic ? "TOXIC" : "SAFE"} (${result.score}/100)`);
 
     return result;
   } catch (error) {
-    console.error("❌ Quick check failed:", error.message);
+    console.error(" Quick check failed:", error.message);
     throw error;
   }
 }
 
-// ============================================
-// ADDITIONAL FUNCTION: BATCH ANALYSIS
-// ============================================
 
-/**
- * Analyze multiple content items
- * Useful for bulk moderation
- * 
- * @param {Array} contentIds - Array of content IDs
- * @returns {Array} Array of analysis results
- */
 export async function batchAnalysis(contentIds) {
-  console.log(`\n📦 Batch analyzing ${contentIds.length} items...`);
+  console.log(`\n Batch analyzing ${contentIds.length} items...`);
 
   const results = [];
 
@@ -255,7 +205,7 @@ export async function batchAnalysis(contentIds) {
         data: result,
       });
 
-      console.log(`✅ ${id}: Success`);
+      console.log(` ${id}: Success`);
     } catch (error) {
       results.push({
         id,
@@ -263,51 +213,28 @@ export async function batchAnalysis(contentIds) {
         error: error.message,
       });
 
-      console.log(`❌ ${id}: Failed - ${error.message}`);
+      console.log(` ${id}: Failed - ${error.message}`);
     }
   }
 
   const successCount = results.filter((r) => r.success).length;
-  console.log(`\n📊 Batch complete: ${successCount}/${contentIds.length} succeeded`);
+  console.log(`\n Batch complete: ${successCount}/${contentIds.length} succeeded`);
 
   return results;
 }
 
-// ============================================
-// ADDITIONAL FUNCTION: RE-ANALYZE CONTENT
-// ============================================
 
-/**
- * Re-analyze existing content
- * Useful when:
- * - Analysis logic is updated
- * - AI model is improved
- * - Manual review requests re-analysis
- * 
- * @param {String} contentId - Content ID to re-analyze
- * @returns {Object} Updated content
- */
 export async function reAnalyzeContent(contentId) {
-  console.log(`\n🔄 Re-analyzing content: ${contentId}`);
+  console.log(`\n Re-analyzing content: ${contentId}`);
 
-  // Just call performAnalysis again
-  // It will overwrite previous analysis results
+  
   return await performAnalysis(contentId);
 }
 
-// ============================================
-// ADDITIONAL FUNCTION: GET ANALYSIS STATS
-// ============================================
 
-/**
- * Get statistics about flagged content
- * Useful for admin dashboard
- * 
- * @param {String} userId - Optional user ID to filter
- * @returns {Object} Statistics
- */
+ 
 export async function getAnalysisStats(userId = null) {
-  console.log("\n📈 Getting analysis statistics...");
+  console.log("\n Getting analysis statistics...");
 
   try {
     const query = userId ? { userId } : {};
@@ -346,18 +273,15 @@ export async function getAnalysisStats(userId = null) {
       avgToxicityScore: 0,
     };
 
-    console.log(`✅ Stats retrieved: ${result.flagged}/${result.total} flagged`);
+    console.log(`Stats retrieved: ${result.flagged}/${result.total} flagged`);
 
     return result;
   } catch (error) {
-    console.error("❌ Failed to get stats:", error.message);
+    console.error("Failed to get stats:", error.message);
     throw error;
   }
 }
 
-// ============================================
-// EXPORT ALL FUNCTIONS
-// ============================================
 
 export default {
   performAnalysis,        // Main function - complete pipeline

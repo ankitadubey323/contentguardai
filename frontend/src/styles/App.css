@@ -1,0 +1,60 @@
+/**
+ * Main app layout styles
+ */
+
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.main-content {
+  flex: 1;
+  padding: 2rem 0;
+  animation: fadeIn 0.5s ease-in;
+}
+
+/* 404 Not Found page */
+.not-found {
+  text-align: center;
+  padding: 4rem 2rem;
+  background: white;
+  border-radius: var(--radius-xl);
+  margin: 2rem auto;
+  max-width: 500px;
+  box-shadow: var(--shadow-xl);
+}
+
+.not-found h1 {
+  color: var(--danger);
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.not-found p {
+  color: var(--gray-600);
+  font-size: 1.1rem;
+}
+
+/* Fade in animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .main-content {
+    padding: 1rem 0;
+  }
+  
+  .not-found h1 {
+    font-size: 2rem;
+  }
+}
